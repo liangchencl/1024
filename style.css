@@ -1,0 +1,43 @@
+@charset "UTF-8";
+/**
+ * 
+ * @authors Your Name (you@example.org)
+ * @date    2016-11-28 10:17:46
+ * @version $Id$
+ */
+*{margin: 0 ;padding: 0;font-family: "微软雅黑"}
+#header {width: 500px;margin: 0 auto;text-align: center;}
+#header h2 {font-size: 60px;font-weight: 600;}
+#header #newgamebutton{display:block;margin:20px auto;width:100px;padding:10px 10px;background-color:#8f7a66;color:white;border-radius:10px;text-decoration:none;}
+#header #newgamebutton:hover{background-color:#9f8b77;}
+#header p {font-size: 26px;}
+
+#grid-container {width: 460px;height: 460px;padding: 20px;background: #bbada0;border-radius:10px;margin: 20px auto; position: relative;}
+.grid-cell {width: 100px;height: 100px;background: #ccc0b3;border-radius: 6px;position: absolute;}
+
+.number-cell {position: absolute;border-radius: 6px;line-height: 100px;font-size: 40px;text-align: center;font-weight: bold;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

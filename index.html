@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>1024</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="style.css" rel="stylesheet">
+<script src="http://libs.baidu.com/jquery/1.9.0/jquery.min.js"></script>
+<script src="support1024.js"></script>
+</head>
+<body>
+<div id="header">
+    <h2>1024</h2>
+    <a id="newgamebutton" href="javascript:newgame();">new game</a>
+    <p>score:<span>0</span></p>
+</div>
+<div id="grid-container">
+	<div id="grid-container-0-0" class="grid-cell"></div>
+	<div id="grid-container-0-1" class="grid-cell"></div>
+	<div id="grid-container-0-2" class="grid-cell"></div>
+	<div id="grid-container-0-3" class="grid-cell"></div>
+	<div id="grid-container-1-0" class="grid-cell"></div>
+	<div id="grid-container-1-1" class="grid-cell"></div>
+	<div id="grid-container-1-2" class="grid-cell"></div>
+	<div id="grid-container-1-3" class="grid-cell"></div>
+	<div id="grid-container-2-0" class="grid-cell"></div>
+	<div id="grid-container-2-1" class="grid-cell"></div>
+	<div id="grid-container-2-2" class="grid-cell"></div>
+	<div id="grid-container-2-3" class="grid-cell"></div>
+	<div id="grid-container-3-0" class="grid-cell"></div>
+	<div id="grid-container-3-1" class="grid-cell"></div>
+	<div id="grid-container-3-2" class="grid-cell"></div>
+	<div id="grid-container-3-3" class="grid-cell"></div>
+
+
+</div>
+
+
+
+<script type="text/javascript">
+var board = new Array();
+var score = 0;
+$(document).ready(function(){
+	newgame();
+});
+
+function newgame(){
+	for(var i=0;i<4;i++){
+		for(var j=0;j<4;j++){
+			$("#grid-container-"+i+"-"+j).css("top",getPosTop(i,j))
+			$("#grid-container-"+i+"-"+j).css("left",getPosLeft(i,j))
+		}
+	}
+
+	// 初始化二维数组
+	for (var i = 0; i<4; i++) {
+		board[i] = new Array();
+		for(var j=0;j<4;j++){
+			board[i][j] = 0;
+			
+		}
+	}
+	// 动态添加放置数字的格子
+	updateBoardView();
+	// 随机添加两个数字
+	//在随机两个格子生成数字2或者是4，位置也是随机的
+    generateOneNumber();
+    generateOneNumber();
+
+}
+
+function updateBoardView(){
+	// 先移除一下，防止第二次点击的时候添加而第一次点击添加的内容还在。
+	$(".number-cell").remove();
+	for(var i=0;i<4;i++){
+		for(var j=0;j<4;j++){
+			$("#grid-container").append("<div class='number-cell' id='number-cell-"+i+"-"+j+"'></div>");
+			// 初始化装数字的格子。相当于16个格子上每个都对应有一个数字，大小一样，开始的时候设置宽高都为0;当有数字的时候宽高就为100;个人感觉可以不用判断，都设置成100也可以
+			var theNumberCell = $("#number-cell-"+i+"-"+j);
+			if(board[i][j] == 0){
+				theNumberCell.css('width','0px');
+				theNumberCell.css('height','0px');
+				theNumberCell.css('top',getPosTop(i,j)+50);
+				theNumberCell.css('left',getPosLeft(i,j)+50);
+			}else{
+				theNumberCell.css('width','100px');
+				theNumberCell.css('height','100px');
+				theNumberCell.css("background",getBgColor(board[i][j]));
+				theNumberCell.css("color",getNumClolr(board[i][j]));
+				theNumberCell.css('top',getPosTop(i,j));
+				theNumberCell.css('left',getPosLeft(i,j));
+				theNumberCell.text( board[i][j] );
+            }
+		}
+	}
+}
+
+$(document).keydown(function(event){
+	switch (event.keyCode){
+		case 37: //left
+		// 向左移动 判断能不能向左
+		if(moveLeft()){
+			// 如果能向左移动，则向左移，然后随机生成一个数字2或者4
+			generateOneNumber();
+			// 并且判断游戏是否结束
+			isGameOver();
+		}
+			break;
+		case 38: //up
+			break;
+		case 39: //right
+		if(moveRight()){
+			// 如果能向左移动，则向左移，然后随机生成一个数字2或者4
+			generateOneNumber();
+			// 并且判断游戏是否结束
+			isGameOver();
+		}
+			break;
+		case 40: //down
+			break;
+		default :
+			break;
+	}
+})
+
+function moveLeft(){
+	if(!canMoveLeft(board)){
+		return false;
+	}else{
+		// 向左移动
+		// 判断能不能向左移动，判断依据：
+		// 1 移动到的位置是不是为空
+		// 2 移动的数字和左边的数字是不是相等
+		// 3 移动的数字到移动到的位置中间的路径是不是为空
+		for(var i=0;i<4;i++){
+			for (var j=1;j<4;j++) {
+				if(board[i][j] != 0){  // 不为0 则可能向左移动
+					for(var k=0;k<j;k++){  //第i行的所有元素，从第一列到第j列循环
+						// 判断第i行的第K列为空 并且第k列的左边没有遮挡的元素(障碍物)
+						if(board[i][k]==0 && noBlock(i,k,j,board)){
+							// move
+							showAnimate(i,j,i,k);
+							board[i][k] = board[i][j];
+							board[i][j] = 0;
+							continue;
+						// 
+						}else if(board[i][k]==board[i][j] && noBlock(i,k,j,board)){
+							// move
+							showAnimate(i,j,i,k);
+							// add
+							board[i][k] += board[i][j];
+							board[i][j] = 0;
+							continue;
+						}
+					}
+				}
+			}
+		}
+		setTimeout("updateBoardView()",200);
+		return true;
+	}
+}
+
+// 判断能不能向左移动，判断的依据是：
+// 1 他的左边没有数字，
+// 2 他的左边有数字但是和他相等
+function canMoveLeft(board){
+	for(var i=0;i<4;i++){
+		// 注意：这里的j(列)是从1开始的，因为第一列就在最左边，是不能向左移动的。
+		for (var j=1;j<4;j++) {
+			if(board[i][j] != 0){
+				// 判断 当前board[i][j] 的元素的左边一个是不是为0或者是不是相等
+				if(board[i][j-1] == 0 || board[i][j-1] == board[i][j] ){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+function moveRight(){
+	if(!canMoveRight(board)){
+		return false;
+	}else{
+		// 向左移动
+		// 判断能不能向左移动，判断依据：
+		// 1 移动到的位置是不是为空
+		// 2 移动的数字和左边的数字是不是相等
+		// 3 移动的数字到移动到的位置中间的路径是不是为空
+		for(var i=0;i<4;i++){
+			for (var j=2;j>=0;j--) {
+				if(board[i][j] != 0){  // 不为0 则可能向左移动
+					for(var k=3;k>j;k--){  //第i行的所有元素，从第一列到第j列循环
+						// 判断第i行的第K列为空 并且第k列的左边没有遮挡的元素(障碍物)
+						if(board[i][k]==0 && noBlock(i,k,j,board)){
+							// move
+							showAnimate(i,j,i,k);
+							board[i][k] = board[i][j];
+							board[i][j] = 0;
+							continue;
+						// 
+						}else if(board[i][k]==board[i][j] && noBlock(i,k,j,board)){
+							// move
+							showAnimate(i,j,i,k);
+							// add
+							board[i][k] += board[i][j];
+							board[i][j] = 0;
+							continue;
+						}
+					}
+				}
+			}
+		}
+		setTimeout("updateBoardView()",200);
+		return true;
+	}
+}
+
+function canMoveRight(board){
+	for(var i=0;i<4;i++){
+		// 注意：这里的j(列)是从1开始的，因为第一列就在最左边，是不能向左移动的。
+		for (var j=2;j>=0;j--) {
+			if(board[i][j] != 0){
+				// 判断 当前board[i][j] 的元素的左边一个是不是为0或者是不是相等
+				if(board[i][j+1] == 0 || board[i][j+1] == board[i][j] ){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+	
+function isGameOver(){
+
+}
+	
+</script>
+
+</body>
+</html>
