@@ -103,29 +103,29 @@ $(document).keydown(function(event){
 		// 向左移动 判断能不能向左
 		if(moveLeft()){
 			// 如果能向左移动，则向左移，然后随机生成一个数字2或者4
-			generateOneNumber();
+			setTimeout("generateOneNumber()",200);
 			// 并且判断游戏是否结束
-			isGameOver();
+			setTimeout("isGameOver()",300);
 		}
 			break;
 		case 38: //up
 		if(moveUp()){
-			generateOneNumber();
-			isGameOver();
+			setTimeout("generateOneNumber()",200);
+			setTimeout("isGameOver()",300);
 		}
 			break;
 		case 39: //right
 		if(moveRight()){
 			// 如果能向左移动，则向左移，然后随机生成一个数字2或者4
-			generateOneNumber();
+			setTimeout("generateOneNumber()",200);
 			// 并且判断游戏是否结束
-			isGameOver();
+			setTimeout("isGameOver()",300);
 		}
 			break;
 		case 40: //down
 		if(moveDown()){
-			generateOneNumber();
-			isGameOver();
+			setTimeout("generateOneNumber()",200);
+			setTimeout("isGameOver()",300);
 		}
 			break;
 		default :
@@ -175,11 +175,6 @@ function moveRight(){
 	if(!canMoveRight(board)){
 		return false;
 	}else{
-		// 向左移动
-		// 判断能不能向左移动，判断依据：
-		// 1 移动到的位置是不是为空
-		// 2 移动的数字和左边的数字是不是相等
-		// 3 移动的数字到移动到的位置中间的路径是不是为空
 		for(var i=0;i<4;i++){
 			for (var j=2;j>=0;j--) {
 				if(board[i][j] != 0){  // 不为0 则可能向左移动
@@ -246,12 +241,12 @@ function moveDown(){
 			for(var i=2;i>=0;i--){
 				if(board[i][j] !=0 ){
 					for(var k=3;k>i;k--){
-						if(board[k][j] == 0 && noBlockRow(k,i,j,board)){
+						if(board[k][j] == 0 && noBlockRow(i,k,j,board)){
 							showAnimate(i,j,k,j);
 							board[k][j] = board[i][j];
 							board[i][j] = 0;
 							continue;
-						}else if(board[k][j]==board[i][j] && noBlockRow(k,i,j,board)){
+						}else if(board[k][j]==board[i][j] && noBlockRow(i,k,j,board)){
 							showAnimate(i,j,k,j);
 							board[k][j] *= 2;
 							board[i][j] = 0;
@@ -313,11 +308,11 @@ function canMoveUp(board){
 }
 
 
-function canMoveDown(){
+function canMoveDown(board){
 	for(var j=0;j<4;j++){
-		for(var i=1;i<4;i++){
+		for(var i=2;i>=0;i--){
 			if(board[i][j] != 0 ){
-				if(board[i+1][j] == 0 || board[i+1][j] == board[i][j] ){
+				if(board[i+1][j] ==0 || board[i+1][j] == board[i][j] ){
 					return true;
 				}
 			}
@@ -326,10 +321,23 @@ function canMoveDown(){
 	return false;
 }
 
-function isGameOver(){
 
+function isGameOver(){
+	if( noMove() && nospace(board) ){
+		alert("Game Over")
+	}
 }
-	
+
+// 判断能不能移动
+function noMove(){
+	if(canMoveDown(board) || canMoveUp(board) || canMoveRight(board) || canMoveLeft(board)){
+		return false;
+	}else{
+		return true;
+	}
+}
+
+
 </script>
 
 </body>
