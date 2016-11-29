@@ -55,6 +55,9 @@ function showAnimate(formx,formy,tox,toy){
 	},200)
 }
 
+
+
+
 // 判断随机生成的数字的位置是否重合了。
 function nospace(board){
 	for( var i = 0 ; i < 4 ; i ++ )
@@ -104,7 +107,7 @@ function generateOneNumber(){
 
 
 // 判断列的左面是否有障碍物 最左边的第0列是不能左移动的 所以i的值是从col1+1 开始的
-function noBlock(row,col1,col2,board){
+function noBlockCol(row,col1,col2,board){
 	for(var i = col1+1;i<col2;i++){
 		// 判断第row行的第i列是不是为空，如果不为空，则表示有障碍物，则不能左移动
 		if(board[row][i] != 0){
@@ -114,3 +117,12 @@ function noBlock(row,col1,col2,board){
 	return true;
 }
 
+// 判断上面是否有障碍物，第一行是不能向上移动的，所以从row1+1 开始
+function noBlockRow(row1,row,col,board){
+	for(var i=row1+1;i<row;i++){
+		if(board[i][col] !=0 ){
+			return false;
+		}
+	}
+	return true;
+}

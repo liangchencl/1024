@@ -77,7 +77,7 @@ function updateBoardView(){
 	for(var i=0;i<4;i++){
 		for(var j=0;j<4;j++){
 			$("#grid-container").append("<div class='number-cell' id='number-cell-"+i+"-"+j+"'></div>");
-			// 初始化装数字的格子。相当于16个格子上每个都对应有一个数字，大小一样，开始的时候设置宽高都为0;当有数字的时候宽高就为100;个人感觉可以不用判断，都设置成100也可以
+			// 初始化装数字的格子。相当于16个格子上每个都对应有一个数字，大小一样，开始的时候设置宽高都为0;当有数字的时候宽高就为100;
 			var theNumberCell = $("#number-cell-"+i+"-"+j);
 			if(board[i][j] == 0){
 				theNumberCell.css('width','0px');
@@ -109,6 +109,10 @@ $(document).keydown(function(event){
 		}
 			break;
 		case 38: //up
+		if(moveUp()){
+			generateOneNumber();
+			isGameOver();
+		}
 			break;
 		case 39: //right
 		if(moveRight()){
@@ -119,6 +123,10 @@ $(document).keydown(function(event){
 		}
 			break;
 		case 40: //down
+		if(moveDown()){
+			generateOneNumber();
+			isGameOver();
+		}
 			break;
 		default :
 			break;
@@ -139,14 +147,14 @@ function moveLeft(){
 				if(board[i][j] != 0){  // 不为0 则可能向左移动
 					for(var k=0;k<j;k++){  //第i行的所有元素，从第一列到第j列循环
 						// 判断第i行的第K列为空 并且第k列的左边没有遮挡的元素(障碍物)
-						if(board[i][k]==0 && noBlock(i,k,j,board)){
+						if(board[i][k]==0 && noBlockCol(i,k,j,board)){
 							// move
 							showAnimate(i,j,i,k);
 							board[i][k] = board[i][j];
 							board[i][j] = 0;
 							continue;
 						// 
-						}else if(board[i][k]==board[i][j] && noBlock(i,k,j,board)){
+						}else if(board[i][k]==board[i][j] && noBlockCol(i,k,j,board)){
 							// move
 							showAnimate(i,j,i,k);
 							// add
@@ -158,7 +166,102 @@ function moveLeft(){
 				}
 			}
 		}
-		setTimeout("updateBoardView()",200);
+		setTimeout("updateBoardView()",150);
+		return true;
+	}
+}
+
+function moveRight(){
+	if(!canMoveRight(board)){
+		return false;
+	}else{
+		// 向左移动
+		// 判断能不能向左移动，判断依据：
+		// 1 移动到的位置是不是为空
+		// 2 移动的数字和左边的数字是不是相等
+		// 3 移动的数字到移动到的位置中间的路径是不是为空
+		for(var i=0;i<4;i++){
+			for (var j=2;j>=0;j--) {
+				if(board[i][j] != 0){  // 不为0 则可能向左移动
+					for(var k=3;k>j;k--){  //第i行的所有元素，从第一列到第j列循环
+						// 判断第i行的第K列为空 并且第k列的左边没有遮挡的元素(障碍物)
+						if(board[i][k]==0 && noBlockCol(i,j,k,board)){
+							// move
+							showAnimate(i,j,i,k);
+							board[i][k] = board[i][j];
+							board[i][j] = 0;
+							continue;
+						// 
+						}else if(board[i][k]==board[i][j] && noBlockCol(i,j,k,board)){
+							// move
+							showAnimate(i,j,i,k);
+							// add
+							board[i][k] += board[i][j];
+							board[i][j] = 0;
+							continue;
+						}
+					}
+				}
+			}
+		}
+		setTimeout("updateBoardView()",150);
+		return true;
+	}
+}
+
+function moveUp(){
+	if(!canMoveUp(board)){
+		return false
+	}else{
+		for(var j=0;j<4;j++){
+			for(var i=1;i<4;i++){
+				if(board[i][j] !=0){
+					for(var k=0;k<i;k++){
+						if(board[k][j] == 0 && noBlockRow(k,i,j,board)){
+							showAnimate(i,j,k,j);
+							board[k][j] = board[i][j];
+							board[i][j] = 0;
+							continue;
+						}else if(board[k][j]==board[i][j] && noBlockRow(k,i,j,board)){
+							showAnimate(i,j,k,j);
+							board[k][j] *= 2;
+							board[i][j] = 0;
+							continue;
+						}
+					}
+				}
+			}
+		}
+		setTimeout("updateBoardView()",150);
+		return true;
+	}
+}
+
+
+function moveDown(){
+	if(!canMoveDown(board)){
+		return false;
+	}else{
+		for(var j=0;j<4;j++){
+			for(var i=2;i>=0;i--){
+				if(board[i][j] !=0 ){
+					for(var k=3;k>i;k--){
+						if(board[k][j] == 0 && noBlockRow(k,i,j,board)){
+							showAnimate(i,j,k,j);
+							board[k][j] = board[i][j];
+							board[i][j] = 0;
+							continue;
+						}else if(board[k][j]==board[i][j] && noBlockRow(k,i,j,board)){
+							showAnimate(i,j,k,j);
+							board[k][j] *= 2;
+							board[i][j] = 0;
+							continue;
+						}
+					}
+				}
+			}
+		}
+		setTimeout("updateBoardView()",150);
 		return true;
 	}
 }
@@ -181,52 +284,26 @@ function canMoveLeft(board){
 	return false;
 }
 
-
-function moveRight(){
-	if(!canMoveRight(board)){
-		return false;
-	}else{
-		// 向左移动
-		// 判断能不能向左移动，判断依据：
-		// 1 移动到的位置是不是为空
-		// 2 移动的数字和左边的数字是不是相等
-		// 3 移动的数字到移动到的位置中间的路径是不是为空
-		for(var i=0;i<4;i++){
-			for (var j=2;j>=0;j--) {
-				if(board[i][j] != 0){  // 不为0 则可能向左移动
-					for(var k=3;k>j;k--){  //第i行的所有元素，从第一列到第j列循环
-						// 判断第i行的第K列为空 并且第k列的左边没有遮挡的元素(障碍物)
-						if(board[i][k]==0 && noBlock(i,k,j,board)){
-							// move
-							showAnimate(i,j,i,k);
-							board[i][k] = board[i][j];
-							board[i][j] = 0;
-							continue;
-						// 
-						}else if(board[i][k]==board[i][j] && noBlock(i,k,j,board)){
-							// move
-							showAnimate(i,j,i,k);
-							// add
-							board[i][k] += board[i][j];
-							board[i][j] = 0;
-							continue;
-						}
-					}
-				}
-			}
-		}
-		setTimeout("updateBoardView()",200);
-		return true;
-	}
-}
-
 function canMoveRight(board){
 	for(var i=0;i<4;i++){
 		// 注意：这里的j(列)是从1开始的，因为第一列就在最左边，是不能向左移动的。
 		for (var j=2;j>=0;j--) {
 			if(board[i][j] != 0){
 				// 判断 当前board[i][j] 的元素的左边一个是不是为0或者是不是相等
-				if(board[i][j+1] == 0 || board[i][j+1] == board[i][j] ){
+				if(board[i][j+1] == 0 || board[i][j] == board[i][j+1] ){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+function canMoveUp(board){
+	for(var j=0;j<4;j++){
+		for(var i=1;i<4;i++){
+			if(board[i][j] !=0){
+				if(board[i-1][j] ==0 || board[i-1][j] == board[i][j] ){
 					return true;
 				}
 			}
@@ -236,7 +313,19 @@ function canMoveRight(board){
 }
 
 
-	
+function canMoveDown(){
+	for(var j=0;j<4;j++){
+		for(var i=1;i<4;i++){
+			if(board[i][j] != 0 ){
+				if(board[i+1][j] == 0 || board[i+1][j] == board[i][j] ){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 function isGameOver(){
 
 }
